@@ -133,7 +133,13 @@ app.get("/random-joke", async (req,res) => {
         const jokes = await Joke.countDocuments();
         if (count == 0 ) return null;
 
-        const rng = Math.random() * 
+        const rng = Math.random() * jokes
+
+        const joke = await Joke.findOne().skip(rng)
+
+        res.status(200).json(joke)
+    } catch (error) {
+        res.status(400).json({message: "Server cann't return random joke!"})
     }
 })
 
