@@ -89,6 +89,9 @@ app.delete("/joke/:id", async (req, res) => {
 app.post("/joke", async (req, res) => {
     const { content, author } = req.body;
 
+    console.log(content,author);
+    
+
     if (!content || !author) {
         return res.status(400).json({ message: "content і author requied!" });
     }
