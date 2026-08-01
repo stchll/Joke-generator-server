@@ -89,21 +89,26 @@ app.delete("/joke/:id", async (req, res) => {
 app.post("/joke", async (req, res) => {
     const { content, author } = req.body;
 
-    if (!content||!author) {
-        return
+    if (!content || !author) {
+        return res.status(400).json({ message: "content і author requied!" });
     }
 
-    const newJoke = new Joke({
-        content: content,
-        author: author,
-        date: new Date(),
-        verified: false,
-    });
+    try {
+        const newJoke = new Joke({
+            content,
+            author,
+            date: new Date(),
+            verified: false,
+        });
 
-    const savedJoke = await newJoke.save();
+        const savedJoke = await newJoke.save();
 
-    res.status(200).json(savedJoke);
-})
+        res.status(200).json(savedJoke);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Can't save a joke!" });
+    }
+});
 
 /**
  * @swagger
