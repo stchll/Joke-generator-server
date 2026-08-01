@@ -100,20 +100,20 @@ app.post("/joke", async (req, res) => {
     // }
 })
 
-// app.get("/random-joke", async (req,res) => {
-//     try {
-//         const jokes = await Joke.countDocuments();
-//         if (count == 0 ) return null;
+app.get("/random-joke", async (req,res) => {
+    try {
+        const jokes = await Joke.countDocuments();
+        if (count == 0 ) return null;
 
-//         const rng = Math.random() * jokes
+        const rng = Math.random() * jokes
 
-//         const joke = await Joke.findOne().skip(rng)
+        const joke = await Joke.findOne().skip(rng)
 
-//         res.status(200).json(joke)
-//     } catch (error) {
-//         res.status(400).json({message: "Server cann't return random joke!"})
-//     }
-// })
+        res.status(200).json(joke)
+    } catch (error) {
+        res.status(400).json({message: "Server cann't return random joke!"})
+    }
+})
 
 app.listen(PORT, () => {
     console.log(`Server runinig on: ${PORT}`);
