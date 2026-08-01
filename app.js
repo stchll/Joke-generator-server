@@ -6,7 +6,6 @@ const dns = require("dns");
 const axios = require("axios");
 require("dotenv").config();
 
-const { Bot } = require("grammy");
 const { count } = require("console");
 
 const app = express();
@@ -36,20 +35,6 @@ const JokeSchema = new mongoose.Schema({
 })
 
 const Joke = mongoose.model("Joke", JokeSchema);
-const bot = new Bot("8754529890:AAH2Ra78FFPGRKyIdTrRGj-8Bu0ZaJosgRo");
-
-bot.on("callback_query", async (ctx) => {
-    const data = ctx.callbackQuery.data;
-
-    if (data.startsWith("delete_joke_")) {
-        const jokeID = data.replace("delete_joke", "")
-        await Joke.findByIdAndDelete(jokeID)
-        await ctx.answerCallbackQuery({ text: "Видалено!" });
-        await ctx.deleteMessage();
-    }
-});
-
-bot.start()
 
 app.get("/jokes", async (req, res) => {
     try {
@@ -83,19 +68,6 @@ app.post("/joke", async (req, res) => {
 
     res.status(200).json(savedJoke);
 
-    bot.api.sendMessage(5430823037, `A new joke was offered: \n Author: ${author} \n Joke: ${content}`,
-        {
-            reply_markup: {
-                inline_keyboard: [
-                    [
-                        { text: "Видалити", callback_data: delete_joke },
-                        { text: "Клас", callback_data: appove_joke }
-                    ]
-                ]
-            }
-        }
-    )
-
     // try {
     //     
 
@@ -128,20 +100,20 @@ app.post("/joke", async (req, res) => {
     // }
 })
 
-app.get("/random-joke", async (req,res) => {
-    try {
-        const jokes = await Joke.countDocuments();
-        if (count == 0 ) return null;
+// app.get("/random-joke", async (req,res) => {
+//     try {
+//         const jokes = await Joke.countDocuments();
+//         if (count == 0 ) return null;
 
-        const rng = Math.random() * jokes
+//         const rng = Math.random() * jokes
 
-        const joke = await Joke.findOne().skip(rng)
+//         const joke = await Joke.findOne().skip(rng)
 
-        res.status(200).json(joke)
-    } catch (error) {
-        res.status(400).json({message: "Server cann't return random joke!"})
-    }
-})
+//         res.status(200).json(joke)
+//     } catch (error) {
+//         res.status(400).json({message: "Server cann't return random joke!"})
+//     }
+// })
 
 app.listen(PORT, () => {
     console.log(`Server runinig on: ${PORT}`);
