@@ -7,7 +7,8 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 
-const {swaggerUi,swaggerSpec} = require("./swagger")
+const {swaggerUi,swaggerSpec} = require("./swagger");
+const { message } = require("telegraf/filters");
 
 const app = express();
 
@@ -126,6 +127,57 @@ app.get("/random-joke", async (req,res) => {
         res.status(200).json(joke)
     } catch (error) {
         res.status(400).json({message: "Server cann't return random joke!"})
+    }
+})
+
+/**
+ * @swagger
+ * /update-joke:/id:
+ *   put:
+ *    summary: "Joke data has been updated!"
+ *    response:
+ *      200:
+ *       description: "Ooops , data can't be updates!"    
+ */
+
+app.put("/update-joke/:id", async(req,res) => {
+    try {
+        const updatedJoke = await Joke.findByIdAndUpdate(req.params.id,req.body);
+
+        if (!updatedJoke) {
+            return res.status(400).json({message: "Joke hasn't be founded!"})
+        }
+
+        res.json(updatedJoke)
+    } catch(eroor) {
+        res.status(400).json({message: "Can't update a joke data!"})
+    }
+})
+
+/**
+ * @swagger
+ * /verify-joke:/id:
+ *   put:
+ *    summary: "Verify joke by administrator!"
+ *    response:
+ *      200:
+ *       description: "Joke is already verified!"    
+ */
+
+app.put("/verify-joke/:id", async (req,res) => {
+    try {
+        const verifiedJoke = await Joke.findByIdAndUpdate(
+            req.params.id,
+            req.body
+        );
+
+        if (!verifiedJoke) {
+            return res.status(400).json({message: "Joke hasn't be founded!"})
+        }
+
+        res.json(verifiedJoke)
+    } catch(error) {
+        res.status(400).json({message: "Can't verify message!"})
     }
 })
 
