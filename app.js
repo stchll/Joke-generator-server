@@ -115,20 +115,23 @@ app.post("/joke", async (req, res) => {
  *       description: "A joke is already getted!"    
  */
 
-app.get("/random-joke", async (req,res) => {
+app.get("/random-joke", async (req, res) => {
     try {
-        const jokes = await Joke.countDocuments();
-        if (count == 0 ) return null;
+        const count = await Joke.countDocuments();
 
-        const rng = Math.random() * jokes
+        if (count === 0) {
+            return res.status(404).json({ message: "No jokes found!" });
+        }
 
-        const joke = await Joke.findOne().skip(rng)
+        const rng = Math.floor(Math.random() * count);
 
-        res.status(200).json(joke)
+        const joke = await Joke.findOne().skip(rng);
+
+        res.status(200).json(joke);
     } catch (error) {
-        res.status(400).json({message: "Server cann't return random joke!"})
+        res.status(400).json({ message: "Server can't return random joke!" });
     }
-})
+});
 
 /**
  * @swagger
