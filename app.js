@@ -7,12 +7,13 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 
-const { count } = require("console");
+const {swaggerUi,swaggerSpec} = require("./swagger")
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(cors());
+app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerSpec));
 
 const PORT = 3000;
 
@@ -38,6 +39,16 @@ const JokeSchema = new mongoose.Schema({
 
 const Joke = mongoose.model("Joke", JokeSchema);
 
+/**
+ * @swagger
+ * /jokes:
+ *   get:
+ *    summary: "Get all of jokes or by params"
+ *    response:
+ *      200:
+ *       description: "Sucsessfully gets users!"    
+ */
+
 app.get("/jokes", async (req, res) => {
     try {
         const jokes = await Joke.find(req.query);
@@ -48,16 +59,38 @@ app.get("/jokes", async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /joke/:id:
+ *   delete:
+ *    summary: "Delete a joke by id"
+ *    response:
+ *      200:
+ *       description: "Deleted sucsess!"    
+ */
+
 app.delete("/joke/:id", async (req, res) => {
     await Joke.findByIdAndDelete(req.params.id);
 
     res.status(200).json({ message: "Deleted!" })
 })
 
+/**
+ * @swagger
+ * /joke:
+ *   post:
+ *    summary: "Post joke to database (required params: content,author)"
+ *    response:
+ *      200:
+ *       description: "A new joke already added to database (requre verify)"    
+ */
+
 app.post("/joke", async (req, res) => {
     const { content, author } = req.body;
 
-    console.log(content, author);
+    if (!content||!author) {
+        return
+    }
 
     const newJoke = new Joke({
         content: content,
@@ -69,38 +102,17 @@ app.post("/joke", async (req, res) => {
     const savedJoke = await newJoke.save();
 
     res.status(200).json(savedJoke);
-
-    // try {
-    //     
-
-
-
-    //     const newJoke = new Joke({
-    //         content: content,
-    //         author: author,
-    //         date: new Date(),
-    //         verified: false,
-    //     });
-
-    //     const savedJoke = await newJoke.save();
-
-    //     bot.api.sendMessage(5430823037, `A new joke was offered: \n Author: ${author} \n Joke: ${content}`,
-    //         {
-    //             reply_markup: {
-    //                 inline_keyboard: [
-    //                     [
-    //                         { text: "🗑 Видалити", callback_data: delete_joke }
-    //                     ]
-    //                 ]
-    //             }
-    //         }
-    //     );
-
-    //     res.status(200).json(savedJoke);
-    // } catch (error) {
-    //     res.status(400).json({ message: "Joke doesn't be saved!" })
-    // }
 })
+
+/**
+ * @swagger
+ * /random-joke:
+ *   get:
+ *    summary: "Get random one joke between all jokes in database"
+ *    response:
+ *      200:
+ *       description: "A joke is already getted!"    
+ */
 
 app.get("/random-joke", async (req,res) => {
     try {
