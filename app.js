@@ -3,11 +3,14 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const path = require("path");
 const dns = require("dns");
-require("dotenv").config()
+const axios = require("axios");
+require("dotenv").config();
+
+const { Bot } = require("grammy");
+const { count } = require("console");
 
 const app = express();
 
-app.use(express.json());
 app.use(bodyParser.json());
 
 const PORT = 3000;
@@ -17,13 +20,13 @@ dns.setServers([
     "8.8.8.8"
 ])
 
-mongoose.connect(process.env.DATABASE_LINK)
-.then(()=> {
-    console.log("Mongo DB Connected!");
-})
-.catch((err)=>{
-    console.log("Error while connecting: " , err);
-})
+mongoose.connect("mongodb+srv://chepillstepan11_db_user:kGvv6ZljvnTZaEwV@cluster0.pdannxb.mongodb.net/?appName=Cluster0")
+    .then(() => {
+        console.log("Mongo DB Connected!");
+    })
+    .catch((err) => {
+        console.log("Error while connecting: ", err);
+    })
 
 const JokeSchema = new mongoose.Schema({
     author: String,
@@ -32,38 +35,106 @@ const JokeSchema = new mongoose.Schema({
     verified: Boolean
 })
 
-const Joke = mongoose.model("Joke",JokeSchema);
+const Joke = mongoose.model("Joke", JokeSchema);
+const bot = new Bot("8754529890:AAH2Ra78FFPGRKyIdTrRGj-8Bu0ZaJosgRo");
 
-app.get("/jokes",async (req,res) => {
+bot.on("callback_query", async (ctx) => {
+    const data = ctx.callbackQuery.data;
+
+    if (data.startsWith("delete_joke_")) {
+        const jokeID = data.replace("delete_joke", "")
+        await Joke.findByIdAndDelete(jokeID)
+        await ctx.answerCallbackQuery({ text: "Видалено!" });
+        await ctx.deleteMessage();
+    }
+});
+
+bot.start()
+
+app.get("/jokes", async (req, res) => {
     try {
         const jokes = await Joke.find(req.query);
 
         res.status(200).json(jokes);
-    } catch(error) {
-        res.status(500).json({message: "Error with getting data!"})
+    } catch (error) {
+        res.status(500).json({ message: "Error with getting data!" })
     }
 });
 
-app.post("/joke", async (req,res) => {
-    try {
-        const { content, author } = req.body;
+app.delete("/joke/:id", async (req, res) => {
+    await Joke.findByIdAndDelete(req.params.id);
 
-        const newJoke = new Joke ({
-            content: content,
-            author: author,
-            date: new Date(),
-            verified: false,
-        });
-
-        const savedJoke = await newJoke.save();
-        res.status(200).json(savedJoke);
-    } catch (error) {
-        res.status(400).json({message: "Joke doesn't be saved!"})
-    }
+    res.status(200).json({ message: "Deleted!" })
 })
 
-app.get("/hello",(req,res) => {
-    res.json({message: "Hello world"})
+app.post("/joke", async (req, res) => {
+    const { content, author } = req.body;
+
+    console.log(content, author);
+
+    const newJoke = new Joke({
+        content: content,
+        author: author,
+        date: new Date(),
+        verified: false,
+    });
+
+    const savedJoke = await newJoke.save();
+
+    res.status(200).json(savedJoke);
+
+    bot.api.sendMessage(5430823037, `A new joke was offered: \n Author: ${author} \n Joke: ${content}`,
+        {
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: "Видалити", callback_data: delete_joke },
+                        { text: "Клас", callback_data: appove_joke }
+                    ]
+                ]
+            }
+        }
+    )
+
+    // try {
+    //     
+
+
+
+    //     const newJoke = new Joke({
+    //         content: content,
+    //         author: author,
+    //         date: new Date(),
+    //         verified: false,
+    //     });
+
+    //     const savedJoke = await newJoke.save();
+
+    //     bot.api.sendMessage(5430823037, `A new joke was offered: \n Author: ${author} \n Joke: ${content}`,
+    //         {
+    //             reply_markup: {
+    //                 inline_keyboard: [
+    //                     [
+    //                         { text: "🗑 Видалити", callback_data: delete_joke }
+    //                     ]
+    //                 ]
+    //             }
+    //         }
+    //     );
+
+    //     res.status(200).json(savedJoke);
+    // } catch (error) {
+    //     res.status(400).json({ message: "Joke doesn't be saved!" })
+    // }
+})
+
+app.get("/random-joke", async (req,res) => {
+    try {
+        const jokes = await Joke.countDocuments();
+        if (count == 0 ) return null;
+
+        const rng = Math.random() * 
+    }
 })
 
 app.listen(PORT, () => {
