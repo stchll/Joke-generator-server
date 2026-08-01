@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const dns = require("dns");
 const axios = require("axios");
+const cors = require("cors");
 require("dotenv").config();
 
 const { count } = require("console");
@@ -11,6 +12,7 @@ const { count } = require("console");
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cors());
 
 const PORT = 3000;
 
