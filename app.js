@@ -16,14 +16,12 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerSpec));
 
-const PORT = 3000;
-
 dns.setServers([
     "1.1.1.1",
     "8.8.8.8"
 ])
 
-mongoose.connect("mongodb+srv://chepillstepan11_db_user:kGvv6ZljvnTZaEwV@cluster0.pdannxb.mongodb.net/?appName=Cluster0")
+mongoose.connect(`${process.env.DATABASE_LINK}`)
     .then(() => {
         console.log("Mongo DB Connected!");
     })
@@ -88,9 +86,6 @@ app.delete("/joke/:id", async (req, res) => {
 
 app.post("/joke", async (req, res) => {
     const { content, author } = req.body;
-
-    console.log(content,author);
-    
 
     if (!content || !author) {
         return res.status(400).json({ message: "content і author requied!" });
@@ -179,8 +174,9 @@ app.put("/verify-joke/:id", async (req,res) => {
     try {
         const verifiedJoke = await Joke.findByIdAndUpdate(
             req.params.id,
-            req.body
+            {verified: true}
         );
+        
 
         if (!verifiedJoke) {
             return res.status(400).json({message: "Joke hasn't be founded!"})
@@ -192,6 +188,24 @@ app.put("/verify-joke/:id", async (req,res) => {
     }
 })
 
-app.listen(PORT, () => {
-    console.log(`Server runinig on: ${PORT}`);
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *    summary: "Check server status!"
+ *    response:
+ *      200:
+ *       description: "Server is live!"    
+ */
+
+app.get("/health",(req,res) => {
+    try {
+        res.status(200).json({message: "Server is awaken@"})
+    } catch (error) {
+        res.status(400).json({message: "Server is currently selepping!"})
+    }
+})
+
+app.listen(process.env.PORT, () => {
+    console.log(`Server is runinig`);
 })
