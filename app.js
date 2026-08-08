@@ -8,7 +8,6 @@ const cors = require("cors");
 require("dotenv").config();
 
 const {swaggerUi,swaggerSpec} = require("./swagger");
-const { message } = require("telegraf/filters");
 
 const app = express();
 
@@ -200,7 +199,7 @@ app.put("/verify-joke/:id", async (req,res) => {
 
 app.get("/health",(req,res) => {
     try {
-        res.status(200).json({message: "Server is awaken@"})
+        res.status(200).json({message: "Server is awaken!"})
     } catch (error) {
         res.status(400).json({message: "Server is currently selepping!"})
     }
