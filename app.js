@@ -183,7 +183,7 @@ async function getIp(req) {
  *       description: "Joke is liked!"    
  */
 
-app.put("/joke/:id/like", async (req, res) => {
+app.put("/like-joke/:id", async (req, res) => {
     try {
         const ip = getIp(req);
         const joke = await Joke.findById(req.params.id);
@@ -215,7 +215,7 @@ app.put("/joke/:id/like", async (req, res) => {
  *       description: "Joke is unliked!"    
  */
 
-app.put("/joke/:id/unlike", async (req, res) => {
+app.put("/unlike-joke/:id", async (req, res) => {
     try {
         const ip = getIp(req);
         const joke = await Joke.findById(req.params.id);
