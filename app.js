@@ -173,6 +173,16 @@ async function getIp(req) {
     return req.headers["x-forwarded-for"]?.split(",")[0].trim();
 }
 
+/**
+ * @swagger
+ * /joke/:id/like:
+ *   put:
+ *    summary: "Like joke and push user ip to likes array"
+ *    response:
+ *      200:
+ *       description: "Joke is liked!"    
+ */
+
 app.put("/joke/:id/like", async (req, res) => {
     try {
         const ip = getIp(req);
@@ -195,7 +205,15 @@ app.put("/joke/:id/like", async (req, res) => {
     }
 })
 
-
+/**
+ * @swagger
+ * /joke/:id/unlike:
+ *   put:
+ *    summary: "Unlike joke and remove user ip from likes array"
+ *    response:
+ *      200:
+ *       description: "Joke is unliked!"    
+ */
 
 app.put("/joke/:id/unlike", async (req, res) => {
     try {
