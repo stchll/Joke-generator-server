@@ -39,7 +39,7 @@ const JokeSchema = new mongoose.Schema({
 const Joke = mongoose.model("Joke", JokeSchema);
 
 app.get("/get-ip", (req,res) => {
-    const ip = req.ip
+    const ip = req.headers['x-forwarded-for']?.split(',')[0].trim()
 
     console.log(ip);
 
