@@ -32,10 +32,19 @@ const JokeSchema = new mongoose.Schema({
     author: String,
     content: String,
     date: Date,
-    verified: Boolean
+    verified: Boolean,
+    likes: {type: [String],default: []}
 })
 
 const Joke = mongoose.model("Joke", JokeSchema);
+
+app.get("/get-ip", (req,res) => {
+    const ip = req.ip
+
+    console.log(ip);
+
+    res.status(200).json(ip)
+})
 
 /**
  * @swagger
