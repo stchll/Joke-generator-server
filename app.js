@@ -8,6 +8,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const {swaggerUi,swaggerSpec} = require("./swagger");
+const { message } = require("telegraf/filters");
 
 const app = express();
 
@@ -167,6 +168,56 @@ app.put("/update-joke/:id", async(req,res) => {
         res.status(400).json({message: "Can't update a joke data!"})
     }
 })
+
+async function getIp(req) {
+    return req.headers["x-forwarded-for"]?.split(",")[0].trim();
+}
+
+app.put("/joke/:id/like", async (req, res) => {
+    try {
+        const ip = getIp(req);
+        const joke = await Joke.findById(req.params.id);
+
+        if (!joke) {
+            return res.status(404).json({message: "Joke not found!"});
+        }
+
+        if (joke.likes.includes(ip)) {
+            return res.status(400).json({ message: "You already liked this joke!" });
+        }
+
+        joke.likes.push(ip);
+        await joke.save();
+
+        res.status(200).json(joke);
+    } catch (error) {
+        res.status(500).json({message: "Joke can't be liked"});
+    }
+})
+
+
+
+app.put("/joke/:id/unlike", async (req, res) => {
+    try {
+        const ip = getIp(req);
+        const joke = await Joke.findById(req.params.id);
+
+        if (!joke) {
+            return res.status(404).json({ message: "Joke not found!" });
+        }
+
+        if (!joke.likedBy.includes(ip)) {
+            return res.status(400).json({ message: "You haven't liked this joke!" });
+        }
+
+        joke.likes = joke.likedBy.filter(item => item !== ip);
+        await joke.save();
+
+        res.status(200).json(joke);
+    } catch (error) {
+        res.status(500).json({ message: "Can't unlike the joke!" });
+    }
+});
 
 /**
  * @swagger
