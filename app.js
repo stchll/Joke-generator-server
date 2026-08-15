@@ -185,7 +185,7 @@ async function getIp(req) {
 
 app.put("/like-joke/:id", async (req, res) => {
     try {
-        const ip = getIp(req);
+        const ip = await getIp(req);
         const joke = await Joke.findById(req.params.id);
 
         if (!joke) {
@@ -201,6 +201,7 @@ app.put("/like-joke/:id", async (req, res) => {
 
         res.status(200).json(joke);
     } catch (error) {
+        console.error(error);
         res.status(500).json({message: "Joke can't be liked"});
     }
 })
@@ -217,7 +218,7 @@ app.put("/like-joke/:id", async (req, res) => {
 
 app.put("/unlike-joke/:id", async (req, res) => {
     try {
-        const ip = getIp(req);
+        const ip = await getIp(req);
         const joke = await Joke.findById(req.params.id);
 
         if (!joke) {
